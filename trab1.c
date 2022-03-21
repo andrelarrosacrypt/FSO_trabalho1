@@ -64,15 +64,6 @@ int main(){
         exit(1);
     }
 
-
-
-    // criacao dos processos filhos
-    for(i=0; i<10 && pid != 0; i++){
-        if( (pid = fork()) < 0 ){
-            printf("ERRO: falha na criacao do filho\n");
-        }
-    }
-
     // attach
     cont = (int *) shmat(idmem, (char *)0, 0);
     if(cont == (int *)-1){
@@ -81,12 +72,18 @@ int main(){
     }
     *cont = 0;
 
+    // criacao dos processos filhos
+    for(i=0; i<10 && pid != 0; i++){
+        if( (pid = fork()) < 0 ){
+            printf("ERRO: falha na criacao do filho\n");
+        }
+    }
+
     // filho
     if(pid == 0){
         p_sem();
             printf("sou o processo filho, pid = %d\n", getpid());
-            *cont = *cont+1;
-            printf("cont = %d\n", *cont);
+            (*cont)++;
             if(*cont == 10){
                 //v_sem(1);
                 printf("cont = 10\n");
@@ -100,30 +97,15 @@ int main(){
         exit(0);
     }
     // pai
-    //p_sem(1);
     printf("sou pai\n");
-    //v_sem(2);
-    // espera os avisos dos filhos
-    // libera os filhos para terminarem
-    // espera os filhos terminarem
-    // termina
-
-
-
-    //p_sem(0);   // espera os filhos executarem
-    //printf("filhos executaram\n");
-    //v_sem(1);   // permite o termino dos filhos
-    //printf("esperando os filhos terminarem\n");
-    //wait(&estado);  // so espera o primeiro filho terminar
     while(wait(&estado) > 0); // espera por todos os processos filhos terminarem
     // https://stackoverflow.com/questions/19461744/how-to-make-parent-wait-for-all-child-processes-to-finish
     printf("depois do wait()\n");
 
-
-    // esperar receber todos os avisos dos filho
-    // recebeu aviso de todos os filhos, envia aviso para todos os filhos
-    // espera todos os filhos encerrarem
-    // encerra
+    // espera os avisos dos filhos
+    // libera os filhos para terminarem
+    // espera os filhos terminarem
+    // termina
 
   return 0;
 }
